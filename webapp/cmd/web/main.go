@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-
 	"github.com/mrazen/webapp/pkg/config"
 	"github.com/mrazen/webapp/pkg/handlers"
 	"github.com/mrazen/webapp/pkg/render"
+	"log"
+	"net/http"
 )
 
 const portNumber = ":8080"
@@ -24,12 +23,14 @@ func main() {
 
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
-
 	render.NewTemplates(&app)
 
-	http.HandleFunc("/", handlers.Repo.Home)
-	http.HandleFunc("/about", handlers.Repo.About)
-
 	fmt.Printf("Starting application on port %s \n", portNumber)
-	_ = http.ListenAndServe(portNumber, nil)
+
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+	err = srv.ListenAndServe()
+	log.Fatal(err)
 }
